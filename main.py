@@ -7,7 +7,7 @@ http_client = requests.session()
 _headers = {
   "Content-Type": "application/json"
 }
-BASE_URL = 'http://52.212.19.134:9300'
+BASE_URL = '{BASE_URL}'
 XSRF_COOKIE = 'XSRF-TOKEN'
 XSRF_HEADER = 'X-XSRF-TOKEN'
 
