@@ -2,6 +2,10 @@ import json
 from typing import Dict, Union, Optional
 import requests
 
+HEADERS = {
+  "Content-Type": "application/json"
+}
+
 class RestClient:
 
     XSRF_COOKIE = 'XSRF-Token'
@@ -21,7 +25,7 @@ class RestClient:
             's' if ssl else '', 
             'localhost' if len(address) == 0 else address,
             port)
-        self._headers = dict()
+        self._headers = HEADERS.copy()
         self._http = requests.session()
         self._verify = False
 
