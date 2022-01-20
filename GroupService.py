@@ -1,12 +1,12 @@
 from typing import Optional, Tuple, List
-import RestClient
+from RESTService import RESTService
 from requests import Response
 import json
 
 class GroupService:
-  
-  def __init__(self, **kwargs):
-      self._rest = RestClient(**kwargs)
+
+  def __init__(self, rest: RESTService):
+      self._rest = rest
 
 
   def get_group(self, id: str) -> Response:
@@ -21,8 +21,8 @@ class GroupService:
 
   def get_group_members(self, id: str) -> Tuple[List, List]:
       url = "/api/v1/groups/{}/members".format(id)
-      json = self._rest.GET(url).json()
-      users, groups = json['users'], json['groups']
+      response = self._rest.GET(url).json()
+      users, groups = response['users'], response['groups']
       return users, groups
 
   def add_member_to_group(self, group_id: str, user_ids: List[str] = None, group_ids: List[str] = None) -> Response:
@@ -38,8 +38,6 @@ class GroupService:
       if group_ids:
           groups = [{ "id": group_id } for group_id in group_ids]
           payload['groups'] = groups  
-
-      print(payload)  
 
       return self._rest.POST(url, data=json.dumps(payload))
 

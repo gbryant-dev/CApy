@@ -2,14 +2,16 @@ import json
 from typing import Dict, Union, Optional
 import requests
 
+from Utils import translate_to_boolean
+
 HEADERS = {
   "Content-Type": "application/json"
 }
 
-class RestClient:
+class RESTService:
 
-    XSRF_COOKIE = 'XSRF-Token'
-    XSRF_HEADER = 'X-XSRF-Token'
+    XSRF_COOKIE = 'XSRF-TOKEN'
+    XSRF_HEADER = 'X-XSRF-TOKEN'
 
     def __init__(
         self, 
@@ -21,8 +23,8 @@ class RestClient:
         namespace: Optional[str] = None
     ):
 
-        self._base_url = "http{}//{}:{}".format(
-            's' if ssl else '', 
+        self._base_url = "http{}://{}:{}".format(
+            's' if translate_to_boolean(ssl) else '', 
             'localhost' if len(address) == 0 else address,
             port)
         self._headers = HEADERS.copy()
@@ -30,7 +32,6 @@ class RestClient:
         self._verify = False
 
         self._start_session(user, password, namespace)
-
 
     def _start_session(self, user: str, password: str, namespace: str = None):
         url = '/api/v1/session'
@@ -46,7 +47,7 @@ class RestClient:
         },
         {
             "name": "CAMPassword",
-            "value": password,
+            "value": password
         }
         ]
 
@@ -54,15 +55,7 @@ class RestClient:
             payload['parameters'].append({ "name": "CAMNamespace", "value": namespace })
 
         self.PUT(url, data=json.dumps(payload))
-            
-
-    def _get_xsrf_token(self):
-        url = '/api/v1/session'
-        response = self.GET(url)
-        token = response.cookies.get(self.XSRF_COOKIE, None)
-        if not token:
-            raise RuntimeError('Could not extract XSRF token from headers')
-        return token
+          
 
     def GET(self, url: str, headers: Dict = None):
         return self._http.get(
@@ -104,3 +97,11 @@ class RestClient:
             data=data, 
             headers={**self._headers, **headers} if headers else self._headers
         )
+
+    def _get_xsrf_token(self):
+        url = '/api/v1/session'
+        response = self.GET(url)
+        token = response.cookies.get(self.XSRF_COOKIE, None)
+        if not token:
+            raise RuntimeError('Could not extract XSRF token from headers')
+        return token
